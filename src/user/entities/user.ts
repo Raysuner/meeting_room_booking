@@ -23,10 +23,10 @@ export class User {
   @Column({ length: 50, comment: '邮箱' })
   email: string;
 
-  @Column({ length: 100, comment: '头像' })
+  @Column({ length: 100, comment: '头像', nullable: true })
   avatar: string;
 
-  @Column({ length: 20, comment: '电话号码' })
+  @Column({ length: 20, comment: '电话号码', nullable: true })
   phoneNumber: string;
 
   @Column({ comment: '是否冻结', default: false })
