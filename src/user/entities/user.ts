@@ -32,7 +32,7 @@ export class User {
   @Column({ comment: '是否冻结', default: false })
   isFrozen: boolean;
 
-  @Column({ comment: '是否是管理员' })
+  @Column({ comment: '是否是管理员', default: false })
   isAdmin: boolean;
 
   @CreateDateColumn({ comment: '注册日期' })
