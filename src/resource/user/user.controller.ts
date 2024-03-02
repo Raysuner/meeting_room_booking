@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { RedisService } from 'src/redis/redis.service';
-import { EmailService } from 'src/email/email.service';
-import { RegisterUserDto } from './dto/user';
+import { RedisService } from 'src/resource/redis/redis.service';
+import { EmailService } from 'src/resource/email/email.service';
+import { RegisterUserDto } from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {

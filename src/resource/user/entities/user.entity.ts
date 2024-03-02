@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from './role';
+import { Role } from 'src/resource/role/entities/role.entity';
 
 @Entity({ name: 'user', comment: '用户' })
 export class User {

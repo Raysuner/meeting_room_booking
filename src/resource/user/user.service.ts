@@ -5,10 +5,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { RegisterUserDto } from './dto/user';
-import { RedisService } from 'src/redis/redis.service';
+import { RegisterUserDto } from './dto/create-user.dto';
+import { RedisService } from 'src/resource/redis/redis.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user';
+import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { md5 } from 'src/utils';
 
@@ -45,6 +45,7 @@ export class UserService {
     registerUser.username = user.username;
     registerUser.password = md5(user.password);
     registerUser.email = user.email;
+    // registerUser.roles =
 
     try {
       await this.userRepository.save(registerUser);

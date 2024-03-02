@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
-import { RedisModule } from './redis/redis.module';
-import { User } from './user/entities/user';
-import { Role } from './user/entities/role';
-import { Permission } from './user/entities/permission';
-import { EmailModule } from './email/email.module';
+import { UserModule } from './resource/user/user.module';
+import { RedisModule } from './resource/redis/redis.module';
+import { User } from './resource/user/entities/user.entity';
+import { Role } from './resource/role/entities/role.entity';
+import { Permission } from './resource/permission/entities/permission.entity';
+import { EmailModule } from './resource/email/email.module';
+import { RoleModule } from './resource/role/role.module';
+import { PermissionModule } from './resource/permission/permission.module';
+import { AuthModule } from './resource/auth/auth.module';
 
 @Module({
   imports: [
@@ -30,6 +33,9 @@ import { EmailModule } from './email/email.module';
     UserModule,
     RedisModule,
     EmailModule,
+    RoleModule,
+    PermissionModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,15 +1,15 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'permission' })
+@Entity({ name: 'permission', comment: '权限' })
 export class Permission {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
     length: 20,
-    comment: '权限代码',
+    comment: '权限名称',
   })
-  code: string;
+  name: string;
 
   @Column({
     length: 100,
