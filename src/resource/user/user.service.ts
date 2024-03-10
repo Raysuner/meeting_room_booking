@@ -45,20 +45,9 @@ export class UserService {
     registerUser.username = user.username;
     registerUser.password = md5(user.password);
     registerUser.email = user.email;
-    // registerUser.roles =
 
-    try {
-      await this.userRepository.save(registerUser);
-      return {
-        success: true,
-        msg: '注册成功',
-      };
-    } catch (error) {
-      this.logger.log(error, UserService);
-      return {
-        success: false,
-        msg: '注册失败',
-      };
-    }
+    await this.userRepository.save(registerUser);
+
+    return null;
   }
 }
