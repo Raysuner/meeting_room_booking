@@ -1,26 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from './entities/role.entity';
+import { Repository, In } from 'typeorm';
+import { ApiException } from 'src/filter/http-exception/api.exception';
+import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
+import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
+import { Permission } from '../permission/entities/permission.entity';
 
 @Injectable()
 export class RoleService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
-  }
+  @InjectRepository(Role)
+  private roleRepository: Repository<Role>;
 
-  findAll() {
-    return `This action returns all role`;
-  }
+  @InjectRepository(Permission)
+  private permissionRepository: Repository<Permission>;
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
-  }
+  async create(createRoleDto: CreateRoleDto) {
+    const matchedRole = await this.roleRepository.findOneBy({
+      name: createRoleDto.name,
+    });
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
-  }
+    if (matchedRole) {
+      throw new ApiException(
+        ApiErrorMessage.ROLE_EXISTED,
+        ApiErrorCode.ROLE_EXISTED,
+      );
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+    const matchedPermissionList = await this.permissionRepository.find({
+      where: {
+        id: In(createRoleDto.permissionIdList),
+      },
+    });
+
+    const role = new Role();
+    role.name = createRoleDto.name;
+    role.permissions = matchedPermissionList;
+
+    await this.roleRepository.save(role);
+
+    return null;
   }
 }
