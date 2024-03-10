@@ -3,6 +3,9 @@ import { CreatePermissionDto } from './dto/create-permission.dto';
 import { Permission } from './entities/permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ApiException } from 'src/filter/http-exception/api.exception';
+import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
+import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 
 @Injectable()
 export class PermissionService {
@@ -18,7 +21,14 @@ export class PermissionService {
     });
 
     if (matchedPermission) {
-      // throw new
+      throw new ApiException(
+        ApiErrorMessage.PERMISSION_EXISTED,
+        ApiErrorCode.PERMISSION_EXISTED,
+      );
     }
+
+    await this.permissionRepository.save(createPermissionDto);
+
+    return null;
   }
 }

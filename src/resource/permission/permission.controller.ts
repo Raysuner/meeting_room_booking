@@ -6,7 +6,7 @@ import { CreatePermissionDto } from './dto/create-permission.dto';
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
-  @Post()
+  @Post('register')
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionService.create(createPermissionDto);
   }

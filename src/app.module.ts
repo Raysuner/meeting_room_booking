@@ -26,6 +26,7 @@ import { AuthModule } from './resource/auth/auth.module';
       entities: [User, Role, Permission],
       poolSize: 10,
       connectorPackage: 'mysql2',
+      charset: 'utf8mb4',
       extra: {
         authPlugin: 'sha256_password',
       },
