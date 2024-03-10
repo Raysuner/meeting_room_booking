@@ -1,21 +1,17 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { RedisService } from 'src/resource/redis/redis.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { md5 } from 'src/utils';
+import { LoginUserDto } from './dto/login-user.dto';
+import { ApiException } from 'src/filter/http-exception/api.exception';
+import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
+import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 
 @Injectable()
 export class UserService {
-  private logger = new Logger();
-
   @InjectRepository(User)
   private userRepository: Repository<User>;
 
@@ -25,20 +21,26 @@ export class UserService {
   async register(user: RegisterUserDto) {
     const captcha = await this.redisService.get(user.email);
     if (!captcha) {
-      throw new HttpException(
-        '未填写验证码或验证码已失效',
-        HttpStatus.BAD_REQUEST,
+      throw new ApiException(
+        ApiErrorMessage.INVALID_CAPTCHA,
+        ApiErrorCode.INVALID_CAPTCHA,
       );
     }
     if (captcha !== user.captcha) {
-      throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
+      throw new ApiException(
+        ApiErrorMessage.CAPTCHA_ERROR,
+        ApiErrorCode.CAPTCHA_ERROR,
+      );
     }
 
     const matchedUser = await this.userRepository.findOneBy({
       username: user.username,
     });
     if (matchedUser) {
-      throw new HttpException('用户已存在', HttpStatus.BAD_REQUEST);
+      throw new ApiException(
+        ApiErrorMessage.USER_EXISTED,
+        ApiErrorCode.USER_EXISTED,
+      );
     }
 
     const registerUser = new User();
@@ -49,5 +51,23 @@ export class UserService {
     await this.userRepository.save(registerUser);
 
     return null;
+  }
+
+  async login(user: LoginUserDto) {
+    const matchedUser = await this.userRepository.findOne({
+      where: {
+        username: user.username,
+      },
+      relations: ['role', 'role_permission'],
+    });
+
+    if (!matchedUser) {
+      throw new ApiException(
+        ApiErrorMessage.USER_UNEXISTED,
+        ApiErrorCode.USER_UNEXISTED,
+      );
+    }
+
+    return matchedUser;
   }
 }

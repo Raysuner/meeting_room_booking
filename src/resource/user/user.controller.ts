@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { RedisService } from 'src/resource/redis/redis.service';
 import { EmailService } from 'src/resource/email/email.service';
 import { RegisterUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -32,5 +33,10 @@ export class UserController {
   @Post('register')
   async register(@Body() user: RegisterUserDto) {
     return await this.userService.register(user);
+  }
+
+  @Post('login')
+  async login(@Body() user: LoginUserDto) {
+    return await this.userService.login(user);
   }
 }
