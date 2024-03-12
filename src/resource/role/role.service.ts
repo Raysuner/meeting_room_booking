@@ -40,6 +40,6 @@ export class RoleService {
 
     await this.roleRepository.save(role);
 
-    return null;
+    return '创建角色成功';
   }
 }

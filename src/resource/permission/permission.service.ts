@@ -29,6 +29,6 @@ export class PermissionService {
 
     await this.permissionRepository.save(createPermissionDto);
 
-    return null;
+    return '创建权限成功';
   }
 }

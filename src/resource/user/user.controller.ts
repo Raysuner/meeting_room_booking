@@ -18,16 +18,13 @@ export class UserController {
   @Get('register-captcha')
   async captcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
-    await this.redisService.set(address, code, 5 * 60);
+    await this.redisService.set(address, code, 1000 * 60);
     await this.emailService.sendMail({
       to: address,
       subject: '注册验证码',
       html: `<p>你的注册验证码是 ${code}</p>`,
     });
-    return {
-      success: true,
-      msg: '获取验证码成功',
-    };
+    return '获取验证码成功';
   }
 
   @Post('register')

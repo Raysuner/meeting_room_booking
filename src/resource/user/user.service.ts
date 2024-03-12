@@ -60,7 +60,7 @@ export class UserService {
 
     await this.userRepository.save(registerUser);
 
-    return null;
+    return '创建用户成功';
   }
 
   async login(user: LoginUserDto) {
