@@ -30,7 +30,7 @@ export class RoleService {
 
     const matchedPermissionList = await this.permissionRepository.find({
       where: {
-        id: In(createRoleDto.permissionIdList),
+        name: In(createRoleDto.permissionNameList),
       },
     });
 

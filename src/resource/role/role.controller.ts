@@ -6,7 +6,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  @Post()
+  @Post('register')
   async create(@Body() createRoleDto: CreateRoleDto) {
     return await this.roleService.create(createRoleDto);
   }

@@ -9,16 +9,20 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { ApiException } from 'src/filter/http-exception/api.exception';
 import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
 import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
+import { Role } from '../role/entities/role.entity';
 
 @Injectable()
 export class UserService {
+  @InjectRepository(Role)
+  private roleRepository: Repository<Role>;
+
   @InjectRepository(User)
   private userRepository: Repository<User>;
 
   @Inject(RedisService)
   private redisService: RedisService;
 
-  async register(user: RegisterUserDto) {
+  async register(user: RegisterUserDto, isAdmin = false) {
     const captcha = await this.redisService.get(user.email);
     if (!captcha) {
       throw new ApiException(
@@ -43,10 +47,16 @@ export class UserService {
       );
     }
 
+    const roleList = await this.roleRepository.findBy({
+      name: isAdmin ? 'admin' : 'user',
+    });
+
     const registerUser = new User();
     registerUser.username = user.username;
     registerUser.password = md5(user.password);
     registerUser.email = user.email;
+    registerUser.isAdmin = isAdmin;
+    registerUser.roles = roleList;
 
     await this.userRepository.save(registerUser);
 
