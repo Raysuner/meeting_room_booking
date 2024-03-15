@@ -22,7 +22,7 @@ export class UserService {
   @Inject(RedisService)
   private redisService: RedisService;
 
-  async register(user: RegisterUserDto, isAdmin = false) {
+  async register(user: RegisterUserDto) {
     const captcha = await this.redisService.get(user.email);
     if (!captcha) {
       throw new ApiException(
@@ -48,14 +48,13 @@ export class UserService {
     }
 
     const roleList = await this.roleRepository.findBy({
-      name: isAdmin ? 'admin' : 'user',
+      name: 'user',
     });
 
     const registerUser = new User();
     registerUser.username = user.username;
     registerUser.password = md5(user.password);
     registerUser.email = user.email;
-    registerUser.isAdmin = isAdmin;
     registerUser.roles = roleList;
 
     await this.userRepository.save(registerUser);
