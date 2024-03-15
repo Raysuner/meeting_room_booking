@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { RedisService } from 'src/resource/redis/redis.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { md5 } from 'src/utils';
+import { md5 } from 'src/utils/utils';
 import { LoginUserDto } from './dto/login-user.dto';
 import { ApiException } from 'src/filter/http-exception/api.exception';
 import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
@@ -28,12 +28,14 @@ export class UserService {
       throw new ApiException(
         ApiErrorMessage.INVALID_CAPTCHA,
         ApiErrorCode.INVALID_CAPTCHA,
+        HttpStatus.BAD_REQUEST,
       );
     }
     if (captcha !== user.captcha) {
       throw new ApiException(
         ApiErrorMessage.CAPTCHA_ERROR,
         ApiErrorCode.CAPTCHA_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -44,6 +46,7 @@ export class UserService {
       throw new ApiException(
         ApiErrorMessage.USER_EXISTED,
         ApiErrorCode.USER_EXISTED,
+        HttpStatus.FORBIDDEN,
       );
     }
 
@@ -67,16 +70,25 @@ export class UserService {
       where: {
         username: user.username,
       },
-      relations: ['role', 'role_permission'],
+      relations: ['roles', 'roles.permissions'],
     });
 
     if (!matchedUser) {
       throw new ApiException(
         ApiErrorMessage.USER_UNEXISTED,
         ApiErrorCode.USER_UNEXISTED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    return matchedUser;
+    if (md5(user.password) !== matchedUser.password) {
+      throw new ApiException(
+        ApiErrorMessage.PASSWORD_ERROR,
+        ApiErrorCode.PASSWORD_ERROR,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return '登录成功';
   }
 }
