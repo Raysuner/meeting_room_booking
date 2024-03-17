@@ -11,9 +11,14 @@ import { EmailModule } from './resource/email/email.module';
 import { RoleModule } from './resource/role/role.module';
 import { PermissionModule } from './resource/permission/permission.module';
 import { AuthModule } from './resource/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
