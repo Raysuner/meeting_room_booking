@@ -34,6 +34,6 @@ export class UserController {
 
   @Post('login')
   async login(@Body() user: LoginUserDto) {
-    return await this.userService.login(user);
+    await this.userService.login(user);
   }
 }

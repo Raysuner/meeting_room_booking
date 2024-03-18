@@ -10,8 +10,8 @@ import { Permission } from './resource/permission/entities/permission.entity';
 import { EmailModule } from './resource/email/email.module';
 import { RoleModule } from './resource/role/role.module';
 import { PermissionModule } from './resource/permission/permission.module';
-import { AuthModule } from './resource/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -19,29 +19,45 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123',
-      database: 'meeting_room_booking_system',
-      synchronize: true,
-      logging: true,
-      entities: [User, Role, Permission],
-      poolSize: 10,
-      connectorPackage: 'mysql2',
-      charset: 'utf8mb4',
-      extra: {
-        authPlugin: 'sha256_password',
+    JwtModule.registerAsync({
+      global: true,
+      useFactory(configService: ConfigService) {
+        return {
+          secret: configService.get('jwt_secret'),
+          signOptions: {
+            expiresIn: configService.get('jwt_access_token_expires_time'),
+          },
+        };
       },
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory(configService: ConfigService) {
+        return {
+          type: 'mysql',
+          host: configService.get('mysql_host'),
+          port: configService.get('mysql_port'),
+          username: configService.get('mysql_username'),
+          password: configService.get('mysql_password'),
+          database: configService.get('mysql_database'),
+          synchronize: true,
+          logging: true,
+          entities: [User, Role, Permission],
+          poolSize: 10,
+          connectorPackage: 'mysql2',
+          charset: 'utf8mb4',
+          extra: {
+            authPlugin: 'sha256_password',
+          },
+        };
+      },
+      inject: [ConfigService],
     }),
     UserModule,
     RedisModule,
     EmailModule,
     RoleModule,
     PermissionModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
