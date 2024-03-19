@@ -22,8 +22,8 @@ export class UserService {
   @Inject(RedisService)
   private redisService: RedisService;
 
-  async register(user: RegisterUserDto) {
-    const captcha = await this.redisService.get(user.email);
+  async register(registerUser: RegisterUserDto) {
+    const captcha = await this.redisService.get(registerUser.email);
     if (!captcha) {
       throw new ApiException(
         ApiErrorMessage.INVALID_CAPTCHA,
@@ -31,7 +31,7 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (captcha !== user.captcha) {
+    if (captcha !== registerUser.captcha) {
       throw new ApiException(
         ApiErrorMessage.CAPTCHA_ERROR,
         ApiErrorCode.CAPTCHA_ERROR,
@@ -40,7 +40,7 @@ export class UserService {
     }
 
     const matchedUser = await this.userRepository.findOneBy({
-      username: user.username,
+      username: registerUser.username,
     });
     if (matchedUser) {
       throw new ApiException(
@@ -54,21 +54,21 @@ export class UserService {
       name: 'user',
     });
 
-    const registerUser = new User();
-    registerUser.username = user.username;
-    registerUser.password = md5(user.password);
-    registerUser.email = user.email;
-    registerUser.roles = roleList;
+    const user = new User();
+    user.username = registerUser.username;
+    user.password = md5(registerUser.password);
+    user.email = registerUser.email;
+    user.roles = roleList;
 
-    await this.userRepository.save(registerUser);
+    await this.userRepository.save(user);
 
     return '创建用户成功';
   }
 
-  async login(user: LoginUserDto) {
+  async login(loginUser: LoginUserDto) {
     const matchedUser = await this.userRepository.findOne({
       where: {
-        username: user.username,
+        username: loginUser.username,
       },
       relations: ['roles', 'roles.permissions'],
     });
@@ -81,7 +81,7 @@ export class UserService {
       );
     }
 
-    if (md5(user.password) !== matchedUser.password) {
+    if (md5(loginUser.password) !== matchedUser.password) {
       throw new ApiException(
         ApiErrorMessage.PASSWORD_ERROR,
         ApiErrorCode.PASSWORD_ERROR,

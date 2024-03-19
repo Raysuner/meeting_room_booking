@@ -4,6 +4,7 @@ import { RedisService } from 'src/resource/redis/redis.service';
 import { EmailService } from 'src/resource/email/email.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('user')
 export class UserController {
@@ -14,6 +15,9 @@ export class UserController {
 
   @Inject(EmailService)
   private emailService: EmailService;
+
+  @Inject(JwtService)
+  private jwtService: JwtService;
 
   @Get('register-captcha')
   async captcha(@Query('address') address: string) {
@@ -33,7 +37,24 @@ export class UserController {
   }
 
   @Post('login')
-  async login(@Body() user: LoginUserDto) {
-    await this.userService.login(user);
+  async login(@Body() loginUser: LoginUserDto) {
+    const matchedUser = await this.userService.login(loginUser);
+    const accessToken = this.jwtService.sign(
+      {
+        username: matchedUser.username,
+        password: matchedUser.password,
+      },
+      { expiresIn: '30m' },
+    );
+    const refreshToken = this.jwtService.sign(
+      {
+        username: matchedUser.username,
+      },
+      { expiresIn: '7d' },
+    );
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
