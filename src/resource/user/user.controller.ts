@@ -36,19 +36,17 @@ export class UserController {
     return await this.userService.register(user);
   }
 
-  @Post('login')
-  async login(@Body() loginUser: LoginUserDto) {
-    const matchedUser = await this.userService.login(loginUser);
+  getToken(user: LoginUserDto) {
     const accessToken = this.jwtService.sign(
       {
-        username: matchedUser.username,
-        password: matchedUser.password,
+        username: user.username,
+        password: user.password,
       },
       { expiresIn: '30m' },
     );
     const refreshToken = this.jwtService.sign(
       {
-        username: matchedUser.username,
+        username: user.username,
       },
       { expiresIn: '7d' },
     );
@@ -56,5 +54,18 @@ export class UserController {
       accessToken,
       refreshToken,
     };
+  }
+
+  @Post('login')
+  async login(@Body() loginUser: LoginUserDto) {
+    const matchedUser = await this.userService.login(loginUser);
+    return this.getToken(matchedUser);
+  }
+
+  @Get('refreshToken')
+  async refreshToken(@Query() token: string) {
+    const data = this.jwtService.verify(token);
+    const matchedUser = await this.userService.findUserByName(data.username);
+    return this.getToken(matchedUser);
   }
 }

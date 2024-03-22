@@ -91,4 +91,8 @@ export class UserService {
 
     return matchedUser;
   }
+
+  async findUserByName(name: string) {
+    return await this.userRepository.findOneBy({ username: name });
+  }
 }
