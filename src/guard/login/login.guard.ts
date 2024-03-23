@@ -28,7 +28,11 @@ export class LoginGuard implements CanActivate {
       return true;
     }
 
-    const request: Request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<
+      Request & {
+        user: any;
+      }
+    >();
     const { authorization = '' } = request.headers;
     if (!authorization) {
       throw new UnauthorizedException('未登录');
@@ -36,7 +40,8 @@ export class LoginGuard implements CanActivate {
 
     try {
       const token = authorization.split(' ')[1];
-      this.jwtService.verify(token);
+      const user = this.jwtService.verify(token);
+      request.user = user;
       return true;
     } catch (error) {
       throw new UnauthorizedException('无效token');

@@ -23,6 +23,7 @@ import { ConfigService } from '@nestjs/config';
           console.error(error);
         }
       },
+      inject: [ConfigService],
     },
   ],
   exports: [RedisService],

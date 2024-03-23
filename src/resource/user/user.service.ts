@@ -93,8 +93,8 @@ export class UserService {
     return matchedUser;
   }
 
-  async findUserByName(name: string) {
-    return await this.userRepository.findOneBy({ username: name });
+  async findUserByName(username: string) {
+    return await this.userRepository.findOneBy({ username: username });
   }
 
   async updatePassword(user: UpdatePasswordUserDto) {
@@ -102,5 +102,40 @@ export class UserService {
     matchedUser.password = md5(user.password);
     await this.userRepository.save(matchedUser);
     return '修改密码成功';
+  }
+
+  async getUserList() {
+    return await this.userRepository.find({
+      where: {
+        isAdmin: false,
+        isFrozen: false,
+      },
+      relations: ['roles', 'roles.permissions'],
+    });
+  }
+
+  async freezeUser(username: string) {
+    const matchedUser = await this.userRepository.findOneBy({ username });
+    if (matchedUser.isFrozen) {
+      throw new ApiException(
+        ApiErrorMessage.USER_FREEZED,
+        ApiErrorCode.USER_FREEZED,
+      );
+    }
+    matchedUser.isFrozen = true;
+    await this.userRepository.save(matchedUser);
+    return '冻结用户成功';
+  }
+
+  async unfreezeUser(username: string) {
+    const matchedUser = await this.userRepository.findOneBy({ username });
+    if (matchedUser.isFrozen) {
+      throw new ApiException(
+        ApiErrorMessage.USER_UNFREEZE,
+        ApiErrorCode.USER_UNFREEZE,
+      );
+    }
+    matchedUser.isFrozen = false;
+    await this.userRepository.save(matchedUser);
   }
 }

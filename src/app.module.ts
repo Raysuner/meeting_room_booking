@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { LoginGuard } from './guard/login/login.guard';
+import { AdminGuard } from './guard/admin/admin.guard';
 
 @Module({
   imports: [
@@ -67,6 +68,10 @@ import { LoginGuard } from './guard/login/login.guard';
     {
       provide: APP_GUARD,
       useClass: LoginGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AdminGuard,
     },
   ],
 })

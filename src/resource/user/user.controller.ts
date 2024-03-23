@@ -7,6 +7,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RequireLogin } from 'src/decorator/login/login.decorator';
+import { RequireAdmin } from 'src/decorator/admin/admin.decorator';
 
 @Controller('user')
 export class UserController {
@@ -38,11 +39,12 @@ export class UserController {
     return await this.userService.register(user);
   }
 
-  getToken(user: LoginUserDto) {
+  getToken(user) {
     const accessToken = this.jwtService.sign(
       {
         username: user.username,
         password: user.password,
+        isAdmin: user.isAdmin,
       },
       { expiresIn: '30m' },
     );
@@ -83,4 +85,16 @@ export class UserController {
   //   const matchedUser = this.userService.findUserByName(user.username)
 
   // }
+
+  @Get('admin/list')
+  async getUserList() {
+    return await this.userService.getUserList();
+  }
+
+  @Post('admin/freeze')
+  @RequireLogin()
+  @RequireAdmin()
+  async freezeUser(@Body() { username }: { username: string }) {
+    return await this.userService.freezeUser(username);
+  }
 }
