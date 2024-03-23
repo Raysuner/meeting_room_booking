@@ -6,4 +6,6 @@ export enum ApiErrorMessage {
   USER_EXISTED = '用户已存在',
   USER_UNEXISTED = '用户不存在',
   PASSWORD_ERROR = '密码错误',
+  USER_FREEZED = '用户已冻结',
+  USER_UNFREEZE = '用户未冻结',
 }
