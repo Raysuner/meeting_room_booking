@@ -16,7 +16,7 @@ export class HttpTransformInterceptor implements NestInterceptor {
         return {
           data,
           code: response.statusCode,
-          message: 'success',
+          success: true,
         };
       }),
     );

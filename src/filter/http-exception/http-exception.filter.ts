@@ -17,7 +17,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof ApiException) {
       response.status(statusCode).json({
         code: exception.getErrorCode(),
-        message: exception.getErrorMessage(),
+        data: exception.getErrorMessage(),
+        success: false,
       });
       return;
     }
@@ -25,9 +26,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const { message } = exception.getResponse() as any;
     response.status(statusCode).json({
       code: statusCode,
-      message: Array.isArray(message)
+      data: Array.isArray(message)
         ? message.join(',')
         : message || exception.message,
+      success: false,
     });
   }
 }
