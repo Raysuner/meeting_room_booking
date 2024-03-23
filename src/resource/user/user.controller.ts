@@ -4,7 +4,9 @@ import { RedisService } from 'src/resource/redis/redis.service';
 import { EmailService } from 'src/resource/email/email.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RequireLogin } from 'src/decorator/login/login.decorator';
 
 @Controller('user')
 export class UserController {
@@ -68,4 +70,17 @@ export class UserController {
     const matchedUser = await this.userService.findUserByName(data.username);
     return this.getToken(matchedUser);
   }
+
+  @Post('updatePassword')
+  @RequireLogin()
+  async updatePassword(@Body() user: UpdatePasswordUserDto) {
+    return await this.userService.updatePassword(user);
+  }
+
+  // @Post('updateUserInfo')
+  // @RequireLogin()
+  // async updateUserInfo(@Body() user: UpdateUserDto) {
+  //   const matchedUser = this.userService.findUserByName(user.username)
+
+  // }
 }

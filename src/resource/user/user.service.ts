@@ -10,6 +10,7 @@ import { ApiException } from 'src/filter/http-exception/api.exception';
 import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
 import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 import { Role } from '../role/entities/role.entity';
+import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 
 @Injectable()
 export class UserService {
@@ -94,5 +95,12 @@ export class UserService {
 
   async findUserByName(name: string) {
     return await this.userRepository.findOneBy({ username: name });
+  }
+
+  async updatePassword(user: UpdatePasswordUserDto) {
+    const matchedUser = await this.findUserByName(user.username);
+    matchedUser.password = md5(user.password);
+    await this.userRepository.save(matchedUser);
+    return '修改密码成功';
   }
 }
