@@ -31,6 +31,10 @@ export class AdminGuard implements CanActivate {
       }
     >();
 
+    if (!request.user) {
+      throw new UnauthorizedException('未登录');
+    }
+
     const { isAdmin } = request.user;
 
     if (isAdmin) {
