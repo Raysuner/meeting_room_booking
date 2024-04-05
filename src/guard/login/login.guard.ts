@@ -24,6 +24,7 @@ export class LoginGuard implements CanActivate {
       'requireLogin',
       context.getHandler(),
     );
+
     if (!requireLogin) {
       return true;
     }

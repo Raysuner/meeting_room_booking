@@ -8,7 +8,7 @@ export class ApiException extends HttpException {
   constructor(
     errorMessage: string,
     errorCode: number,
-    statusCode: HttpStatus = HttpStatus.OK,
+    statusCode: HttpStatus = HttpStatus.BAD_REQUEST,
   ) {
     super(errorMessage, statusCode);
     this.errorCode = errorCode;

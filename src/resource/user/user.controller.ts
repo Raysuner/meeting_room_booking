@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { RedisService } from 'src/resource/redis/redis.service';
 import { EmailService } from 'src/resource/email/email.service';
@@ -22,15 +30,15 @@ export class UserController {
   @Inject(JwtService)
   private jwtService: JwtService;
 
-  @Get('register-captcha')
+  @Get('registerCaptcha')
   async captcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
     await this.redisService.set(address, code, 1000 * 60);
-    await this.emailService.sendMail({
-      to: address,
-      subject: '注册验证码',
-      html: `<p>你的注册验证码是 ${code}</p>`,
-    });
+    // await this.emailService.sendMail({
+    //   to: address,
+    //   subject: '注册验证码',
+    //   html: `<p>你的注册验证码是 ${code}</p>`,
+    // });
     return '获取验证码成功';
   }
 
@@ -74,21 +82,19 @@ export class UserController {
   }
 
   @Post('updatePassword')
-  @RequireLogin()
   async updatePassword(@Body() user: UpdatePasswordUserDto) {
+    console.log('updatePassword', user);
     return await this.userService.updatePassword(user);
   }
 
-  // @Post('updateUserInfo')
-  // @RequireLogin()
-  // async updateUserInfo(@Body() user: UpdateUserDto) {
-  //   const matchedUser = this.userService.findUserByName(user.username)
-
-  // }
-
   @Get('admin/list')
-  async getUserList() {
-    return await this.userService.getUserList();
+  @RequireLogin()
+  @RequireAdmin()
+  async getUserList(
+    @Query('pageNo', ParseIntPipe) pageNo: number,
+    @Query('pageSize', ParseIntPipe) pageSize: number,
+  ) {
+    return await this.userService.getUserList(pageNo, pageSize);
   }
 
   @Post('admin/freeze')

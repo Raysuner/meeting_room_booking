@@ -98,20 +98,24 @@ export class UserService {
   }
 
   async updatePassword(user: UpdatePasswordUserDto) {
-    const matchedUser = await this.findUserByName(user.username);
+    const matchedUser = await this.userRepository.findOneBy({
+      email: user.email,
+    });
     matchedUser.password = md5(user.password);
     await this.userRepository.save(matchedUser);
     return '修改密码成功';
   }
 
-  async getUserList() {
-    return await this.userRepository.find({
+  async getUserList(pageNo: number, pageSize: number) {
+    const list = await this.userRepository.find({
       where: {
         isAdmin: false,
         isFrozen: false,
       },
       relations: ['roles', 'roles.permissions'],
     });
+
+    return list.slice((pageNo - 1) * pageSize, pageNo * pageSize) || [];
   }
 
   async freezeUser(username: string) {
