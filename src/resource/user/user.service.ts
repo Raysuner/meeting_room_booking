@@ -98,6 +98,22 @@ export class UserService {
   }
 
   async updatePassword(user: UpdatePasswordUserDto) {
+    const captcha = await this.redisService.get(user.email);
+    if (!captcha) {
+      throw new ApiException(
+        ApiErrorMessage.INVALID_CAPTCHA,
+        ApiErrorCode.INVALID_CAPTCHA,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (captcha !== user.captcha) {
+      throw new ApiException(
+        ApiErrorMessage.CAPTCHA_ERROR,
+        ApiErrorCode.CAPTCHA_ERROR,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const matchedUser = await this.userRepository.findOneBy({
       email: user.email,
     });
