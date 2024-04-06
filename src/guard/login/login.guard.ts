@@ -3,12 +3,14 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
+import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
+import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
+import { ApiException } from 'src/filter/http-exception/api.exception';
 
 @Injectable()
 export class LoginGuard implements CanActivate {
@@ -36,7 +38,10 @@ export class LoginGuard implements CanActivate {
     >();
     const { authorization = '' } = request.headers;
     if (!authorization) {
-      throw new UnauthorizedException('未登录');
+      throw new ApiException(
+        ApiErrorMessage.EMPTY_TOKEN,
+        ApiErrorCode.EMPTY_TOKEN,
+      );
     }
 
     try {
@@ -45,7 +50,10 @@ export class LoginGuard implements CanActivate {
       request.user = user;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('无效token');
+      throw new ApiException(
+        ApiErrorMessage.INVALID_TOKEN,
+        ApiErrorCode.INVALID_TOKEN,
+      );
     }
   }
 }

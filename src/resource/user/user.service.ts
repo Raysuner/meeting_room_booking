@@ -11,6 +11,7 @@ import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
 import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 import { Role } from '../role/entities/role.entity';
 import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
+import { UpdateInfoUserDto } from './dto/update-info-user.dto';
 
 @Injectable()
 export class UserService {
@@ -29,14 +30,12 @@ export class UserService {
       throw new ApiException(
         ApiErrorMessage.INVALID_CAPTCHA,
         ApiErrorCode.INVALID_CAPTCHA,
-        HttpStatus.BAD_REQUEST,
       );
     }
     if (captcha !== registerUser.captcha) {
       throw new ApiException(
         ApiErrorMessage.CAPTCHA_ERROR,
         ApiErrorCode.CAPTCHA_ERROR,
-        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -76,9 +75,8 @@ export class UserService {
 
     if (!matchedUser) {
       throw new ApiException(
-        ApiErrorMessage.USER_UNEXISTED,
-        ApiErrorCode.USER_UNEXISTED,
-        HttpStatus.BAD_REQUEST,
+        ApiErrorMessage.USER_UN_EXISTED,
+        ApiErrorCode.USER_UN_EXISTED,
       );
     }
 
@@ -86,7 +84,6 @@ export class UserService {
       throw new ApiException(
         ApiErrorMessage.PASSWORD_ERROR,
         ApiErrorCode.PASSWORD_ERROR,
-        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -103,14 +100,12 @@ export class UserService {
       throw new ApiException(
         ApiErrorMessage.INVALID_CAPTCHA,
         ApiErrorCode.INVALID_CAPTCHA,
-        HttpStatus.BAD_REQUEST,
       );
     }
     if (captcha !== user.captcha) {
       throw new ApiException(
         ApiErrorMessage.CAPTCHA_ERROR,
         ApiErrorCode.CAPTCHA_ERROR,
-        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -120,6 +115,10 @@ export class UserService {
     matchedUser.password = md5(user.password);
     await this.userRepository.save(matchedUser);
     return '修改密码成功';
+  }
+
+  async updateUserInfo(user: UpdateInfoUserDto) {
+    console.log(user);
   }
 
   async getUserList(pageNo: number, pageSize: number) {

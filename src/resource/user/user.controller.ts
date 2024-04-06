@@ -16,6 +16,10 @@ import { UpdatePasswordUserDto } from './dto/update-password-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RequireLogin } from 'src/decorator/login/login.decorator';
 import { RequireAdmin } from 'src/decorator/admin/admin.decorator';
+import { UpdateInfoUserDto } from './dto/update-info-user.dto';
+import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
+import { ApiException } from 'src/filter/http-exception/api.exception';
+import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
 
 @Controller('user')
 export class UserController {
@@ -54,13 +58,13 @@ export class UserController {
         password: user.password,
         isAdmin: user.isAdmin,
       },
-      { expiresIn: '30m' },
+      { expiresIn: '30s' },
     );
     const refreshToken = this.jwtService.sign(
       {
         username: user.username,
       },
-      { expiresIn: '7d' },
+      { expiresIn: '1m' },
     );
     return {
       accessToken,
@@ -75,10 +79,24 @@ export class UserController {
   }
 
   @Get('refreshToken')
-  async refreshToken(@Query() token: string) {
-    const data = this.jwtService.verify(token);
+  async refreshToken(@Query('token') token: string) {
+    let data;
+    try {
+      data = this.jwtService.verify(token);
+    } catch (error) {
+      throw new ApiException(
+        ApiErrorMessage.INVALID_TOKEN,
+        ApiErrorCode.INVALID_TOKEN,
+      );
+    }
     const matchedUser = await this.userService.findUserByName(data.username);
     return this.getToken(matchedUser);
+  }
+
+  @Get('getUserInfo')
+  @RequireLogin()
+  async getUserInfo() {
+    return '获取信息成功';
   }
 
   @Post('updatePassword')
@@ -86,7 +104,13 @@ export class UserController {
     return await this.userService.updatePassword(user);
   }
 
-  @Get('admin/list')
+  @Post('updateInfo')
+  @RequireLogin()
+  async updateUserInfo(@Body() user: UpdateInfoUserDto) {
+    return this.userService.updateUserInfo(user);
+  }
+
+  @Get('list')
   @RequireLogin()
   @RequireAdmin()
   async getUserList(
@@ -96,7 +120,7 @@ export class UserController {
     return await this.userService.getUserList(pageNo, pageSize);
   }
 
-  @Post('admin/freeze')
+  @Post('freeze')
   @RequireLogin()
   @RequireAdmin()
   async freezeUser(@Body() { username }: { username: string }) {
