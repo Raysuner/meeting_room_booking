@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Inject,
   ParseIntPipe,
   Post,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RedisService } from 'src/resource/redis/redis.service';
@@ -21,6 +24,8 @@ import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 import { ApiException } from 'src/filter/http-exception/api.exception';
 import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
 import { User } from 'src/decorator/user/user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from 'src/utils/utils';
 
 @Controller('user')
 export class UserController {
@@ -59,13 +64,13 @@ export class UserController {
         password: user.password,
         isAdmin: user.isAdmin,
       },
-      { expiresIn: '10s' },
+      { expiresIn: '10m' },
     );
     const refreshToken = this.jwtService.sign(
       {
         username: user.username,
       },
-      { expiresIn: '10m' },
+      { expiresIn: '7d' },
     );
     return {
       accessToken,
@@ -80,7 +85,8 @@ export class UserController {
   }
 
   @Get('refreshToken')
-  async refreshToken(@Query('token') token: string) {
+  async refreshToken(@Headers() headers) {
+    const token = headers.authorization?.replace?.('Bearer ', '');
     let data;
     try {
       data = this.jwtService.verify(token);
@@ -109,6 +115,18 @@ export class UserController {
   @RequireLogin()
   async updateUserInfo(@Body() user: UpdateInfoUserDto) {
     return this.userService.updateUserInfo(user);
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: 'uploads',
+      storage,
+    }),
+  )
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log('file', file);
+    return file;
   }
 
   @Get('list')

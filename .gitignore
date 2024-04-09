@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # yarn
 yarn.lock
+
+# 静态文件夹
+uploads/*

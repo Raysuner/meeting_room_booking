@@ -121,9 +121,7 @@ export class UserService {
     return await this.findUserByName(username);
   }
 
-  async updateUserInfo(user: UpdateInfoUserDto) {
-    console.log(user);
-  }
+  async updateUserInfo(user: UpdateInfoUserDto) {}
 
   async getUserList(pageNo: number, pageSize: number) {
     const list = await this.userRepository.find({
