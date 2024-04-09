@@ -117,6 +117,10 @@ export class UserService {
     return '修改密码成功';
   }
 
+  async getUserInfo(username: string) {
+    return await this.findUserByName(username);
+  }
+
   async updateUserInfo(user: UpdateInfoUserDto) {
     console.log(user);
   }

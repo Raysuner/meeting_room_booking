@@ -20,6 +20,7 @@ import { UpdateInfoUserDto } from './dto/update-info-user.dto';
 import { ApiErrorCode } from 'src/common/constant/api-error-code.enum';
 import { ApiException } from 'src/filter/http-exception/api.exception';
 import { ApiErrorMessage } from 'src/common/constant/api-error-msg.enum';
+import { User } from 'src/decorator/user/user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -58,13 +59,13 @@ export class UserController {
         password: user.password,
         isAdmin: user.isAdmin,
       },
-      { expiresIn: '30s' },
+      { expiresIn: '10s' },
     );
     const refreshToken = this.jwtService.sign(
       {
         username: user.username,
       },
-      { expiresIn: '1m' },
+      { expiresIn: '10m' },
     );
     return {
       accessToken,
@@ -95,8 +96,8 @@ export class UserController {
 
   @Get('getUserInfo')
   @RequireLogin()
-  async getUserInfo() {
-    return '获取信息成功';
+  async getUserInfo(@User() user) {
+    return this.userService.getUserInfo(user.username);
   }
 
   @Post('updatePassword')
