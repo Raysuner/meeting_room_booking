@@ -12,10 +12,12 @@ export class UpdateInfoUserDto {
   @IsEmail({}, { message: '邮箱格式不合法' })
   email: string;
 
-  @IsPhoneNumber('CN', { message: '手机格式不合法' })
   @IsOptional()
+  // @IsNotEmpty({ message: '手机号码不能为空' })
+  @IsPhoneNumber('CN', { message: '手机格式不合法' })
   phoneNumber: string;
 
   @IsOptional()
+  // @IsNotEmpty({ message: '头像不能为空' })
   avatar: string;
 }

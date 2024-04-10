@@ -121,7 +121,13 @@ export class UserService {
     return await this.findUserByName(username);
   }
 
-  async updateUserInfo(user: UpdateInfoUserDto) {}
+  async updateUserInfo(user: UpdateInfoUserDto) {
+    const matchedUser = await this.findUserByName(user.username);
+    matchedUser.avatar = user.avatar || null;
+    matchedUser.email = user.email;
+    matchedUser.phoneNumber = user.phoneNumber || null;
+    this.userRepository.save(matchedUser);
+  }
 
   async getUserList(pageNo: number, pageSize: number) {
     const list = await this.userRepository.find({
